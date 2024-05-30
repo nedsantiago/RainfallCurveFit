@@ -159,8 +159,10 @@ class CurveFitter():
         return y_data
     
     def estimate_data(self,x_value,func, df):# EDIT x_value to be a list
-        """This method estimates the values for a new dataframe or
-        dataframe edition"""
+        """
+        This method estimates the values for a new dataframe or
+        dataframe edition
+        """
 
         # using the x data, get all the y-values for each x-value
         y_data = pd.DataFrame(columns=[x_value])
@@ -189,12 +191,14 @@ class CurveFitter():
 
 # AlternateBlock object
 class AlterBlock():
-    """This object takes hourly duration RIDF and converts it into a
+    """
+    This object takes hourly duration RIDF and converts it into a
     single day rainfall event. First, it takes the cumulative amount
     and subtracts the ith hour rainfall to the i+1 hour rainfall.
     Then, it rearranges a dataframe's values using the Alternating
     Block Method.  Whereby, the largest values are at the middle, and
-    the smallest values are near the start and end of the dataset"""
+    the smallest values are near the start and end of the dataset
+    """
     def __init__(self,df):
         ## Assuming the values are organized from largest to smallest
         
