@@ -29,14 +29,18 @@ def main():
 
 
 def rainfall_curve_fit(path, formula):
-    """This function takes a path of a Rainfall-Intensity-Duration Frequency table
-    and returns a table of time-series data for each return period. This follows the
-    Alternating Block Method for Stochastic Rainfall estimation"""
+    """
+    This function takes a path of a Rainfall-Intensity-Duration
+    Frequency table and returns a table of time-series data for each 
+    return period. This follows the Alternating Block Method for 
+    Stochastic Rainfall estimation
+    """
 
-    # Using the Ridf object, create a Pandas DataFrame of the RIDF table. Then clean and organize
+    # Using the Ridf object, create a Pandas DataFrame of the RIDF table
+    # Then clean and organize
     ridf_raw = Ridf(path)
 
-    ## Note: take adavantage of transposition, df.T for getting 150-year RP
+    # take adavantage of transposition, df.T for getting 150-year RP
     # Estimate the 150-year Return Period
     cf_T = CurveFitter()
     cf_T.curvefit(formula, ridf_raw.df.T)
@@ -52,7 +56,7 @@ def rainfall_curve_fit(path, formula):
     cf_adj.curvefit(formula, ridf_adj.df)
     # print(f"The value of cf_adj.coeff_table:\n{cf_adj.coeff_table}")
 
-    # Now with the curve fit constants, get the hourly rainfall intensities
+    # Now with the curve fit constants, get hourly rainfall intensities
     HOURLY_24 = [i for i in range(1,24+1)]
     # print(f"The value of HOURLY_24: {HOURLY_24}")
 
@@ -93,8 +97,10 @@ class DirectoryHandler:
 
 # RIDF Object
 class Ridf:
-    """This object contains the rainfall-intensity-duration frequency
-    table in its raw, approximated, and resulting values"""
+    """
+    This object contains the rainfall-intensity-duration frequency
+    table in its raw, approximated, and resulting values
+    """
     def __init__(self, file_path):
         self.df = pd.read_csv(file_path,index_col= 0)   # EDIT init with df
 
@@ -102,27 +108,39 @@ class Ridf:
         """This method checks for incorrect or missing data."""
         pass
     def time_scale(self):
-        """This method changes the time scale data type 
-        and format to a standard format."""
+        """
+        This method changes the time scale data type 
+        and format to a standard format.
+        """
         mydict = {'10':1/6,'20':1/3,'30':1/2, # EDIT DICTIONARY
         '1':1,'2':2,'3':3,
         '6':6,'12':12,'24':24}
         self.df = self.df.rename(columns= mydict)
     def xdata(self):
-        """This method creates the x-axis data, which is mainly used
-        for graphs"""
+        """
+        This method creates the x-axis data, which is mainly used
+        for graphs
+        """
         return self.df.index
     def ydata(self):
-        """This method creates the y-axis data, which is mainly used
-        for graphs"""
+        """
+        This method creates the y-axis data, which is mainly used for 
+        graphs
+        """
         pass
 
 # Curve Fitter Object
 class CurveFitter():
-    """This object takes a dataframe and outputs a curve-fit parameter table"""
+    """
+    This object takes a dataframe and outputs a curve-fit parameter 
+    table
+    """
 
     def curvefit(self, func, df):
-        """Calculates the curve-fit parameter table and returns a Pandas Dataframe"""
+        """
+        Calculates the curve-fit parameter table and returns a Pandas 
+        Dataframe
+        """
         self.func = func
         # Placeholder floating point values for xdf
         df_col = df.columns
@@ -137,7 +155,8 @@ class CurveFitter():
             df_ind = np.array(df.iloc[i,:])
             # Curve Fitting Algorithm
             popt, pcov = curve_fit(func, df_col, df_ind)
-			# concatenates this iteration's dataframe to the coefficcient table dataframe
+			# concatenates this iteration's dataframe to the 
+            # coefficient table dataframe
             coeff_table = pd.concat([coeff_table,
             pd.DataFrame([popt], columns = list_col, index = [df.index[i]])])
         self.coeff_table = coeff_table
@@ -151,7 +170,7 @@ class CurveFitter():
         # return x values as a numpy array
         return y_data
     
-    def estimate_data(self,x_value,func, df):           # EDIT x_value to be a list
+    def estimate_data(self,x_value,func, df):# EDIT x_value to be a list
         """This method estimates the values for a new dataframe or
         dataframe edition"""
 
@@ -220,7 +239,9 @@ class AlterBlock():
         
 # Graphing Object
 class Grapher():
-    """This object makes it easier to make graphs with a uniform aesthetic"""
+    """
+    This object makes it easier to make graphs with a uniform aesthetic
+    """
     def grapher(self,xdata,ydata,orig_xdata,orig_ydata):
         # record the inputs
         self.xdata = xdata # EDIT: Add these inputs to __init__
@@ -253,11 +274,16 @@ class Grapher():
 
 # Recording Object
 class DataRecorder():
-    """This object takes information and exports it into a file format such as csv"""
+    """
+    This object takes information and exports it into a file format 
+    such as csv
+    """
     
     def export_to_csv(self,pd_object,export_path):
-        """This function takes a pandas dataframe and uses its to_csv function
-        to get save the output to the provided export path"""
+        """
+        This function takes a pandas dataframe and uses its to_csv 
+        function to get save the output to the provided export path
+        """
         pd_object.to_csv(export_path) 
 
 
