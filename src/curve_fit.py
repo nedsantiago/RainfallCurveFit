@@ -8,9 +8,9 @@ import logging
 
 def main():
     # Declaring the folder location, file name, and formula
-    folder_path = r"..\test\data\port"
+    folder_path = r".\test\data\port"
     file_name = r"input_mmhr.csv"
-    export_path = r"..\test\data\port\output_mmhr.csv"
+    export_path = r".\test\data\port\result_mmhr.csv"
     formula = hoerl_mod
 
     # Using the DataRetriever, create the path for the file

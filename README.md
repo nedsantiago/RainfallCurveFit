@@ -1,4 +1,4 @@
-# Rainfall Curve Fit
+# Alternating Block Method for Stochastic Rainfall
 
 ## Purpose
 This script aims to reduce the time spent converting Rainfall-Intensity Duration Frequency Curves (RIDF) into usable rainfall data for Hydrologic and Hydraulic Simulations
