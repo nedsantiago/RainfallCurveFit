@@ -2,30 +2,25 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
-import os
-import logging
+from src.directory_handler import DirectoryHandler
 
 
 def main():
-    # Declaring the folder location, file name, and formula
-    folder_path = r".\test\data\port"
-    file_name = r"input_mmhr.csv"
-    export_path = r".\test\data\port\result_mmhr.csv"
+    # Using the DataHandler as settings file
+    settings = DirectoryHandler()
+
+    # Declaring formula
     formula = hoerl_mod
 
-    # Using the DataRetriever, create the path for the file
-    ridf_retriever = DirectoryHandler()
-
-    ridf_retriever.full_path(
-        folder_path = folder_path,
-        file_name = file_name)
+    settings.add_path("ridf", r".\test\data\port\input_mmhr.csv")
+    settings.add_path("csv_result", r".\test\data\port\result_mmhr.csv")
 
     # Conduct rainfall curve fit
-    df_new = rainfall_curve_fit(ridf_retriever.file_path, formula)
+    df_new = rainfall_curve_fit(settings.paths["ridf"], formula)
 
     # Record the final data into csv format
     record = DataRecorder()
-    record.export_to_csv(df_new.df_output,export_path)
+    record.export_to_csv(df_new.df_output, settings.paths["csv_result"])
 
 
 def rainfall_curve_fit(path, formula):
@@ -47,7 +42,7 @@ def rainfall_curve_fit(path, formula):
 
     # Replace the current dataframe with a new one with 150-year RP
     ridf_adj = ridf_raw
-    ridf_adj.df = cf_T.estimate_data(150,formula,ridf_raw.df)
+    ridf_adj.df = cf_T.estimate_data(150, formula, ridf_raw.df)
     ridf_adj.time_scale()
     # print(f"The value of ridf_adj.df:\n{ridf_adj.df}")
 
@@ -57,7 +52,7 @@ def rainfall_curve_fit(path, formula):
     # print(f"The value of cf_adj.coeff_table:\n{cf_adj.coeff_table}")
 
     # Now with the curve fit constants, get hourly rainfall intensities
-    HOURLY_24 = [i for i in range(1,24+1)]
+    HOURLY_24 = [i for i in range(1, 24+1)]
     # print(f"The value of HOURLY_24: {HOURLY_24}")
 
     dfi = pd.DataFrame()
@@ -87,13 +82,6 @@ def vap_pres(x,a,b,c):
 def log_fit(x,a,b):
     return a+b*np.log(x)
 
-# Retriever Object
-class DirectoryHandler:
-    """Builds and saves a file path for later use"""
-    file_path = ""
-    def full_path(self, folder_path:str, file_name:str):
-        self.file_path = os.path.join(folder_path,file_name)
-        return  self.file_path
 
 # RIDF Object
 class Ridf:
@@ -187,7 +175,12 @@ class CurveFitter():
             # print(f"Value of popt for iteration {i}:\n{popt}\nType of popt:\n{type(popt)}")
             # calculate the estimated value
             # concat this into a pandas dataframe 
-            y_data = pd.concat([y_data,pd.DataFrame([func(x_value,*popt)], columns = [x_value], index = [y_ind])])
+            y_data = pd.concat(
+                [y_data, pd.DataFrame(
+                        [func(x_value,*popt)], 
+                        columns = [x_value], 
+                        index = [y_ind]
+                        )])
             # print(f"y_data:\n{y_data}")
         # return the complete dataframe
         df2 = pd.concat([y_data.T,df])
