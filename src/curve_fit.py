@@ -15,13 +15,26 @@ def main():
 
     # Using the DataRetriever, create the path for the file
     ridf_retriever = DirectoryHandler()
-    
+
     ridf_retriever.full_path(
         folder_path = folder_path,
         file_name = file_name)
 
+    # Conduct rainfall curve fit
+    df_new = rainfall_curve_fit(ridf_retriever.file_path, formula)
+
+    # Record the final data into csv format
+    record = DataRecorder()
+    record.export_to_csv(df_new.df_output,export_path)
+
+
+def rainfall_curve_fit(path, formula):
+    """This function takes a path of a Rainfall-Intensity-Duration Frequency table
+    and returns a table of time-series data for each return period. This follows the
+    Alternating Block Method for Stochastic Rainfall estimation"""
+
     # Using the Ridf object, create a Pandas DataFrame of the RIDF table. Then clean and organize
-    ridf_raw = Ridf(ridf_retriever.file_path)
+    ridf_raw = Ridf(path)
 
     ## Note: take adavantage of transposition, df.T for getting 150-year RP
     # Estimate the 150-year Return Period
@@ -53,10 +66,8 @@ def main():
     df_new = AlterBlock(dfi)
     # print(f"The result of the AlternateBlock:\n{df_new.df_output}")
 
-    # Record the final data into csv format
-    record = DataRecorder()
-    record.export_to_csv(df_new.df_output,export_path)
-
+    return df_new
+    
 
 # Delcare all curve models to be trialed
 def weibull(x,a,b,c):
