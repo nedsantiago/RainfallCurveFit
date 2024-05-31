@@ -27,10 +27,9 @@ This script aims to reduce the time spent converting Rainfall-Intensity Duration
 - [x] Pytest integration
 - [x] Singleton data handler, separate data handler and path taker
 - [x] Provide a GUI to the DataRetriever object
-- [ ] Logging file that shows the process of the calculation, important for debugging the software
-- [ ] Variable time steps
+- [x] Logging file that shows the process of the calculation, important for debugging the software
 - [ ] Add error handling
+- [ ] Variable time steps
 - [ ] Selection of rainfall stations
 - [ ] Use as a plugin to other programs
-- [ ] Optimization
 - [ ] CurveFitter detects how many parameter a function requires and makes a list of columns accordingly

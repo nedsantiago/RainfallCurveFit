@@ -2,7 +2,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
-from data_handler import DirectoryHandler, request_open_file, request_write_file
+import logging
+
+# setup logger
+logger = logging.getLogger(__name__)
 
 
 def rainfall_curve_fit(path, formula):
@@ -26,26 +29,26 @@ def rainfall_curve_fit(path, formula):
     ridf_adj = ridf_raw
     ridf_adj.df = cf_T.estimate_data(150, formula, ridf_raw.df)
     ridf_adj.time_scale()
-    # print(f"The value of ridf_adj.df:\n{ridf_adj.df}")
+    logger.debug(f"The value of ridf_adj.df:\n{ridf_adj.df}")
 
     # Get the curve fit constants for each return period
     cf_adj = CurveFitter()
     cf_adj.curvefit(formula, ridf_adj.df)
-    # print(f"The value of cf_adj.coeff_table:\n{cf_adj.coeff_table}")
+    logger.debug(f"The value of cf_adj.coeff_table:\n{cf_adj.coeff_table}")
 
     # Now with the curve fit constants, get hourly rainfall intensities
     HOURLY_24 = [i for i in range(1, 24+1)]
-    # print(f"The value of HOURLY_24: {HOURLY_24}")
+    logger.debug(f"The value of HOURLY_24: {HOURLY_24}")
 
     dfi = pd.DataFrame()
     for i in HOURLY_24:
-        # print(f"For hour {i} of type {type(i)}:")
+        logger.debug(f"For hour {i} of type {type(i)}:")
         dfi = cf_adj.estimate_data(i,formula,dfi)
-        # print(dfi)
+        logger.debug(dfi)
 
     # Rearrange into rainfall event using AlternateBlock object
     df_new = AlterBlock(dfi)
-    # print(f"The result of the AlternateBlock:\n{df_new.df_output}")
+    logger.debug(f"The result of the AlternateBlock:\n{df_new.df_output}")
 
     return df_new
 
@@ -146,15 +149,15 @@ class CurveFitter():
 
         # using the x data, get all the y-values for each x-value
         y_data = pd.DataFrame(columns=[x_value])
-        # print(f"Values of self.coeff_table:\n{self.coeff_table}")
-        # print(f"Values of self.df_ind:\n{self.df_ind}")
-        # print(f"Values of self.df_col:\n{self.df_col}")
+        logger.debug(f"Values of self.coeff_table:\n{self.coeff_table}")
+        logger.debug(f"Values of self.df_ind:\n{self.df_ind}")
+        logger.debug(f"Values of self.df_col:\n{self.df_col}")
         for i in range(0,len(self.df_ind)):
             # take this iteration's constants
             y_ind = self.df_ind[i]
             popt = self.coeff_table.iloc[i,:]
-            # print(f"Value of y_ind:\n{y_ind}")
-            # print(f"Value of popt for iteration {i}:\n{popt}\nType of popt:\n{type(popt)}")
+            logger.debug(f"Value of y_ind:\n{y_ind}")
+            logger.debug(f"Value of popt for iteration {i}:\n{popt}\nType of popt:\n{type(popt)}")
             # calculate the estimated value
             # concat this into a pandas dataframe 
             y_data = pd.concat(
@@ -163,7 +166,7 @@ class CurveFitter():
                         columns = [x_value], 
                         index = [y_ind]
                         )])
-            # print(f"y_data:\n{y_data}")
+            logger.debug(f"y_data:\n{y_data}")
         # return the complete dataframe
         df2 = pd.concat([y_data.T,df])
         df2 = df2.sort_index()
@@ -184,11 +187,11 @@ class AlterBlock():
         
         ## make a new dataframe where i hour is the result of i - (i+1)
         ## if first row, retain
-        # print(f"df before the subtraction:\n{df}")
+        logger.debug(f"df before the subtraction:\n{df}")
         for i in range(len(df.index)-1,0,-1):
             df.iloc[i,:] = df.iloc[i-1,:] - df.iloc[i,:]
             ## if not first row, subtract value to previous value insert
-        # print(f"df AFTER the subtraction:\n{df}")
+        logger.debug(f"df AFTER the subtraction:\n{df}")
 
 
         ## give two new columns, one that increments from 1 to infinity, and the other
@@ -196,18 +199,18 @@ class AlterBlock():
         ## i.e. 1 0, 2 1, 3 0, 4 1, ...
         df['ind'] = df.index 
         df['IsOdd'] = df['ind'] % 2 != 0
-        # print(f"The value of df:\n{df}")
+        logger.debug(f"The value of df:\n{df}")
 
         ## whenever column 2 is 1 add the numbers into another dataframe
         ## where smallest value is at the bottom
         dfbot = df.loc[df['IsOdd'] == 1]
-        # print(f"The value of IsOdd DF:\n{dfbot}")
+        logger.debug(f"The value of IsOdd DF:\n{dfbot}")
         
         ## whenever column 2 is zero add the number to its own dataframe
         ## where smallest value is at the top
         dftop = df.loc[df['IsOdd'] == 0]
-        # print(f"The value of NOT IsOdd DF:\n{dftop.sort_values(by = [dftop.columns[0]],ascending = True)}")
-        # print(f"The value of dftop:\n{dftop}")
+        logger.debug(f"The value of NOT IsOdd DF:\n{dftop.sort_values(by = [dftop.columns[0]],ascending = True)}")
+        logger.debug(f"The value of dftop:\n{dftop}")
         
         ## concat the two dataframes
         self.df_output =  pd.concat([dftop.sort_values(by = [dftop.columns[0]],ascending = True),dfbot])

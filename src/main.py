@@ -1,6 +1,6 @@
 import logging_config
 from data_handler import DirectoryHandler, request_open_file, request_write_file
-from curve_fit import rainfall_curve_fit, DataRecorder
+from curve_fit import rainfall_curve_fit, DataRecorder, hoerl_mod
 
 def main():
     # Using the DataHandler as settings file
@@ -22,9 +22,6 @@ def main():
     # Record the final data into csv format
     record = DataRecorder()
     record.export_to_csv(df_new.df_output, settings.paths["csv_result"])
-
-def hoerl_mod(x,a,b,c):
-    return a*b**(1/x)*x**c
 
 
 if __name__ == "__main__":
