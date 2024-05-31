@@ -13,8 +13,8 @@ def main():
     formula = hoerl_mod
 
     # declare input and output paths, gui interaction can be done here
-    INPUT_PATH = r".\test\data\port\input_mmhr.csv"
-    OUTPUT_PATH = r".\test\data\port\result_mmhr.csv"
+    INPUT_PATH = request_open_file()
+    OUTPUT_PATH = request_write_file()
 
     settings.add_path("ridf", INPUT_PATH)
     settings.add_path("csv_result", OUTPUT_PATH)
