@@ -1,7 +1,8 @@
 import pytest
-from src.curve_fit import rainfall_curve_fit, hoerl_mod
+import sys
 import pandas as pd
-
+sys.path.append("../src/")
+from curve_fit import *
 
 class TestRainfallCurveFit():
     """This class collects all the functions that test the whole curve fit program.
@@ -30,15 +31,15 @@ class TestRainfallCurveFit():
     def test_port(self):
         """Tests data against the port data set"""
 
-        INPUT_DATA = r".\test\data\port\input_mmhr.csv"
-        OUTPUT_DATA = r".\test\data\port\output_expected_mmhr.csv"
+        INPUT_DATA = r".\data\port\input_mmhr.csv"
+        OUTPUT_DATA = r".\data\port\output_expected_mmhr.csv"
 
         self._test_data(INPUT_DATA, OUTPUT_DATA)
 
     def test_iloilo(self):
         """Tests data against the iloilo data set"""
 
-        INPUT_DATA = r".\test\data\iloilo\input_mmhr.csv"
-        OUTPUT_DATA = r".\test\data\iloilo\output_expected_mmhr.csv"
+        INPUT_DATA = r".\data\iloilo\input_mmhr.csv"
+        OUTPUT_DATA = r".\data\iloilo\output_expected_mmhr.csv"
 
         self._test_data(INPUT_DATA, OUTPUT_DATA)

@@ -22,7 +22,7 @@ class DirectoryHandler:
         """
         Initialize the paths as a dictionary
         """
-        self.paths = dict
+        self.paths = dict()
 
     def add_path(self, data_name: str, path: str):
         """
@@ -34,11 +34,6 @@ class DirectoryHandler:
         assert exists(path) or isfile(path), err_msg
 
         self.paths[data_name] = path
-        
-    file_path = ""
-    def full_path(self, folder_path:str, file_name:str):
-        self.file_path = os.path.join(folder_path,file_name)
-        return  self.file_path
 
 def create_guiless_tk():
     # create a tkinter object

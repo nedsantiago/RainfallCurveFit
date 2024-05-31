@@ -26,7 +26,7 @@ This script aims to reduce the time spent converting Rainfall-Intensity Duration
 - [x] Github integration
 - [x] Pytest integration
 - [x] Singleton data handler, separate data handler and path taker
-- [ ] Provide a GUI to the DataRetriever object
+- [x] Provide a GUI to the DataRetriever object
 - [ ] Logging file that shows the process of the calculation, important for debugging the software
 - [ ] Variable time steps
 - [ ] Add error handling
