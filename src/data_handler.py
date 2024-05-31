@@ -1,6 +1,8 @@
 from os.path import exists, isfile
+import tkinter as tk
+from tkinter import filedialog
 
-# Retriever Object
+# Directory Handler
 class DirectoryHandler:
     """
     This class takes and stores directories for later use. This
@@ -37,3 +39,37 @@ class DirectoryHandler:
     def full_path(self, folder_path:str, file_name:str):
         self.file_path = os.path.join(folder_path,file_name)
         return  self.file_path
+
+def create_guiless_tk():
+    # create a tkinter object
+    root = tk.Tk()
+    # remove the gui element of the tkinter object
+    root.withdraw()
+    # return the tk object
+    return root
+
+def request_open_file(note) -> str:
+    # create gui-less tkinter object
+    root = create_guiless_tk()
+
+    # record the path
+    file_dir = filedialog.askopenfilename(
+        filetypes = [("All Files", "*.*")],
+        title = note
+    )
+
+    root.destroy()
+    return file_dir
+
+def request_write_file(note) -> str:
+   # create gui-less tkinter object
+    root = create_guiless_tk()
+
+    # record the  path
+    file_dir = filedialog.asksaveasfilename(
+        filetypes = [("All Files", "*.*")],
+        title = note
+    )
+
+    root.destroy()
+    return file_dir

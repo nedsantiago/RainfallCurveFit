@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
-from src.directory_handler import DirectoryHandler
+from src.data_handler import DirectoryHandler, request_open_file, request_write_file
 
 
 def main():
@@ -12,8 +12,12 @@ def main():
     # Declaring formula
     formula = hoerl_mod
 
-    settings.add_path("ridf", r".\test\data\port\input_mmhr.csv")
-    settings.add_path("csv_result", r".\test\data\port\result_mmhr.csv")
+    # declare input and output paths, gui interaction can be done here
+    INPUT_PATH = r".\test\data\port\input_mmhr.csv"
+    OUTPUT_PATH = r".\test\data\port\result_mmhr.csv"
+
+    settings.add_path("ridf", INPUT_PATH)
+    settings.add_path("csv_result", OUTPUT_PATH)
 
     # Conduct rainfall curve fit
     df_new = rainfall_curve_fit(settings.paths["ridf"], formula)
@@ -66,7 +70,6 @@ def rainfall_curve_fit(path, formula):
     # print(f"The result of the AlternateBlock:\n{df_new.df_output}")
 
     return df_new
-    
 
 # Delcare all curve models to be trialed
 def weibull(x,a,b,c):
@@ -81,7 +84,6 @@ def vap_pres(x,a,b,c):
     return np.exp(a+(b/x)+c*np.log(x))
 def log_fit(x,a,b):
     return a+b*np.log(x)
-
 
 # RIDF Object
 class Ridf:
@@ -266,7 +268,6 @@ class Grapher():
         plt.close('all')
 
 # RIDF Verifier Object
-
 
 
 # Recording Object
