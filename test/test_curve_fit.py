@@ -1,4 +1,3 @@
-import pytest
 import sys
 import pandas as pd
 sys.path.append("../src/")
