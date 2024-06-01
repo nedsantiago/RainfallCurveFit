@@ -1,10 +1,10 @@
-import logging
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
 
 # setup logger
+import logging
 logger = logging.getLogger(__name__)
 
 def rainfall_curve_fit(path, formula):

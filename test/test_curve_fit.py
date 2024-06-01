@@ -1,7 +1,12 @@
-import sys
 import pandas as pd
+import sys
 sys.path.append("../src/")
+import log
+import logging
 from curve_fit import *
+
+
+logger = logging.getLogger(__name__)
 
 class TestRainfallCurveFit():
     """This class collects all the functions that test the whole curve fit program.
@@ -30,6 +35,7 @@ class TestRainfallCurveFit():
     def test_port(self):
         """Tests data against the port data set"""
 
+        logger.debug("Beginning test_port")
         INPUT_DATA = r".\data\port\input_mmhr.csv"
         OUTPUT_DATA = r".\data\port\output_expected_mmhr.csv"
 

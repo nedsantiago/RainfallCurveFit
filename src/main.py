@@ -1,16 +1,14 @@
-import logging
-import logging.config
+import log
 from data_handler import DirectoryHandler, request_open_file, request_write_file
 from curve_fit import rainfall_curve_fit, DataRecorder, hoerl_mod
 
+
 def main():
-    # setup logging
-    logging.basicConfig(
-        filename = "altblock_stochastic.log",
-        level=logging.DEBUG,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    # logging.config.fileConfig("logging.conf")
+    # setup logger
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.debug("BEGIN ALTBLOCK STOCHASTIC")
+    
     # Using the DataHandler as settings file
     settings = DirectoryHandler()
 
