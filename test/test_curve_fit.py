@@ -36,15 +36,15 @@ class TestRainfallCurveFit():
         """Tests data against the port data set"""
 
         logger.debug("Beginning test_port")
-        INPUT_DATA = r".\data\port\input_mmhr.csv"
-        OUTPUT_DATA = r".\data\port\output_expected_mmhr.csv"
+        INPUT_DATA = r"./data/port/input_mmhr.csv"
+        OUTPUT_DATA = r"./data/port/output_expected_mmhr.csv"
 
         self._test_data(INPUT_DATA, OUTPUT_DATA)
 
     def test_iloilo(self):
         """Tests data against the iloilo data set"""
 
-        INPUT_DATA = r".\data\iloilo\input_mmhr.csv"
-        OUTPUT_DATA = r".\data\iloilo\output_expected_mmhr.csv"
+        INPUT_DATA = r"./data/iloilo/input_mmhr.csv"
+        OUTPUT_DATA = r"./data/iloilo/output_expected_mmhr.csv"
 
         self._test_data(INPUT_DATA, OUTPUT_DATA)
