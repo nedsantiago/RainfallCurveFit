@@ -30,7 +30,7 @@ This script aims to reduce the time spent converting Rainfall-Intensity Duration
 - [x] Singleton data handler, separate data handler and path taker
 - [x] Provide a GUI to the DataRetriever object
 - [x] Logging file that shows the process of the calculation, important for debugging the software
-- [ ] Use class handlers.RotatingFileHandler in log file to also force log file size limit
+- [x] Use class handlers.RotatingFileHandler in log file to also force log file size limit
 - [ ] Setup a new test that uses the old method as the test data, difference should be less than 5%
 - [ ] Use minutes as the fundamental data type of the analysis, so that everything can be an integer
 - [ ] Ridf should enforce that durations should be in minutes format, always increasing from left to right
