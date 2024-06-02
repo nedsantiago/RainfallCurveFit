@@ -44,6 +44,7 @@ class TestRainfallCurveFit():
     def test_iloilo(self):
         """Tests data against the iloilo data set"""
 
+        logger.debug("Beginning test_iloilo")
         INPUT_DATA = r"./data/iloilo/input_mmhr.csv"
         OUTPUT_DATA = r"./data/iloilo/output_expected_mmhr.csv"
 
