@@ -1,5 +1,4 @@
 # MY GIT IGNORES
-test/data/
 venv/
 
 # Byte-compiled / optimized / DLL files
