@@ -81,8 +81,6 @@ class Ridf():
 
     def __init__(self, obj):
         logging.debug(f"obj: {obj}")
-        # convert all column headers into integers
-        self._convert_headers_to_integer(obj)
         # check if progression is correct
         err_msg = "column headers should be minutes and increasing order"
         assert self._is_col_correct_progression(obj) == True, err_msg
