@@ -43,9 +43,9 @@ This script aims to reduce the time spent converting Rainfall-Intensity Duration
 - [x] Logging file that shows the process of the calculation, important for debugging the software
 - [x] Use class handlers.RotatingFileHandler in log file to also force log file size limit
 - [ ] Change Ridf class
-    - [ ] Ridf should enforce that durations should be in minutes format, always increasing from left to right
+    - [x] Ridf should enforce that durations should be in minutes format, always increasing from left to right
     - [ ] Maybe enforce that it should be an intensity scale i.e. mm/hr per return-period-duration and not mm per return-period-duration
-    - [ ] Ridf should act more like a dataframe with functionality to check data validity. Thus, need to inherit pd.Dataframe
+    - [x] Ridf should act more like a dataframe with functionality to check data validity. Thus, need to inherit pd.Dataframe
     - [ ] Ridf can have an abstract method so that it can be built on by another class
 - [ ] Change CurveFitter class
     - [ ] CurveFitter should immediately start curve fitting after receiving the path to the data

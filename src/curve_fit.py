@@ -36,6 +36,8 @@ def rainfall_curve_fit(path, formula):
     ridf_raw = pd.read_csv(path, index_col=0)
     # convert the headers into integers
     ridf_raw.columns = ridf_raw.columns.map(int)
+    # convert minutest to hours, minutes makes the curve fit unstable
+    ridf_raw.columns = ridf_raw.columns / 60
     logging.debug(f"ridf_raw: {ridf_raw}")
 
     # take adavantage of transposition, df.T for getting 150-year RP
@@ -152,6 +154,7 @@ class CurveFitter():
         for i in range(0, len(df.index)):
             # Reads the dataframe for the i-th row
             df_ind = np.array(df.iloc[i,:])
+            logger.debug(f"df.iloc[i,:]:\n{df.iloc[i,:]}")
             # Curve Fitting Algorithm
             popt, pcov = curve_fit(func, df_col, df_ind)
 			# concatenates this iteration's dataframe to the 

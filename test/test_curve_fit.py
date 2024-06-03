@@ -67,4 +67,4 @@ class TestRidf():
         pass
 
     def test_ridf(self):
-        df = 
+        pass
