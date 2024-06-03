@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
+from csv import DictReader
 
 # setup logger
 import logging
@@ -32,22 +33,25 @@ def rainfall_curve_fit(path, formula):
 
     # Using the Ridf object, create a Pandas DataFrame of the RIDF table
     # Then clean and organize
-    ridf_raw = Ridf(path)
+    ridf_raw = pd.read_csv(path, index_col=0)
+    # convert the headers into integers
+    ridf_raw.columns = ridf_raw.columns.map(int)
+    logging.debug(f"ridf_raw: {ridf_raw}")
 
     # take adavantage of transposition, df.T for getting 150-year RP
     # Estimate the 150-year Return Period
     cf_T = CurveFitter()
-    cf_T.curvefit(formula, ridf_raw.df.T)
+    cf_T.curvefit(formula, ridf_raw.T)
 
     # Replace the current dataframe with a new one with 150-year RP
     ridf_adj = ridf_raw
-    ridf_adj.df = cf_T.estimate_data(150, formula, ridf_raw.df)
-    ridf_adj.time_scale()
-    logger.debug(f"The value of ridf_adj.df:\n{ridf_adj.df}")
+    ridf_adj = cf_T.estimate_data(150, formula, ridf_raw)
+    logger.debug(f"The value of ridf_adj:\n{ridf_adj}")
+    logger.debug(f"The column names of ridf_adj\n {ridf_adj.columns}")
 
     # Get the curve fit constants for each return period
     cf_adj = CurveFitter()
-    cf_adj.curvefit(formula, ridf_adj.df)
+    cf_adj.curvefit(formula, ridf_adj)
     logger.debug(f"The value of cf_adj.coeff_table:\n{cf_adj.coeff_table}")
 
     # Now with the curve fit constants, get hourly rainfall intensities
@@ -67,28 +71,50 @@ def rainfall_curve_fit(path, formula):
     return df_new
 
 # RIDF Object
+@pd.api.extensions.register_dataframe_accessor("ridf")
 class Ridf():
     """
     This object contains the rainfall-intensity-duration frequency
-    table in its raw, approximated, and resulting values
+    table in its raw, approximated, and resulting values. It assumes
+    minutes duration.
     """
 
-    def __init__(self, file_path):
-        self.df = pd.read_csv(file_path, index_col= 0)
+    def __init__(self, obj):
+        logging.debug(f"obj: {obj}")
+        # convert all column headers into integers
+        self._convert_headers_to_integer(obj)
+        # check if progression is correct
+        err_msg = "column headers should be minutes and increasing order"
+        assert self._is_col_correct_progression(obj) == True, err_msg
 
-    def clean(self):
-        """This method checks for incorrect or missing data."""
-        pass
+    def _is_col_correct_progression(self, obj) -> bool:
+        """
+        This method checks if columns are increasing from left
+        to right.
+        """
+        
+        # set flag for has correct progression
+        has_correct_progression = True
+        # loop through columns starting from second item
+        logger.debug(f"obj: {obj}")
+        logger.debug(f"obj.columns: {obj.columns}")
+        # start at second item
+        for col_num in range(1, len(obj.columns)):
+            # if number is less than previous (likely hours)
+            if float(obj.columns[col_num]) < float(obj.columns[col_num - 1]):
+                # set flag to false
+                has_correct_progression = False
+        # return flag
+        return has_correct_progression
+    
+    def _convert_headers_to_integer(self, obj):
+        """
+        This method ensures that the column headers are all integers
+        """
 
-    def time_scale(self):
-        """
-        This method changes the time scale data type 
-        and format to a standard format.
-        """
-        mydict = {'10':1/6,'20':1/3,'30':1/2, # EDIT DICTIONARY
-        '1':1,'2':2,'3':3,
-        '6':6,'12':12,'24':24}
-        self.df = self.df.rename(columns= mydict)
+        # convert all headers to integer
+        obj.columns = obj.columns.map(int)
+        logging.debug(f"obj.columns after conversion:\n{obj.columns}")
 
     def xdata(self):
         """
