@@ -59,7 +59,7 @@ This script aims to reduce the time spent converting Rainfall-Intensity Duration
     - [ ] AlterBlock should rewrite the axis with possibility for time-series-like indexes
 - [ ] Remove (redundant) DataRecorder class since new AlterBlock class will inherit the needed functionality pandas dataframe class
 - [ ] Setup a new test that uses the old method as the test data, difference should be less than 5%
-- [ ] Use minutes as the fundamental data type of the analysis, so that everything can be an integer
+- [x] Use minutes as the fundamental data type of the analysis, so that everything can be an integer. (Was forced to re-convert back to hours because using minutes added instability to the curve fit calculation)
 - [ ] Variable time steps
 - [ ] Add error handling
 - [ ] Selection of rainfall stations

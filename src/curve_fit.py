@@ -123,13 +123,13 @@ class Ridf():
         This method creates the x-axis data, which is mainly used
         for graphs
         """
-        return self.df.index
+        return self.index
     def ydata(self):
         """
         This method creates the y-axis data, which is mainly used for 
         graphs
         """
-        pass
+        return self.columns
 
 # Curve Fitter Object
 class CurveFitter():
@@ -152,8 +152,9 @@ class CurveFitter():
         self.df_collen = len(df.columns)
         self.df_indlen = len(df.index)
         list_col = list('abc') # EDIT THIS: needs to be useable by many formats
-        coeff_table = pd.DataFrame(columns=list_col)
-        for i in range(0, len(df.index)):
+        # collect list of dictionaries
+        ls_dict = list()
+        for i in range(0, self.df_indlen):
             # Reads the dataframe for the i-th row
             df_ind = np.array(df.iloc[i,:])
             logger.debug(f"df.iloc[i,:]:\n{df.iloc[i,:]}")
@@ -161,15 +162,28 @@ class CurveFitter():
             popt, pcov = curve_fit(func, df_col, df_ind)
 			# concatenates this iteration's dataframe to the 
             # coefficient table dataframe
-            coeff_table = pd.concat(
-                [
-                    coeff_table, 
-                    pd.DataFrame(
-                        [popt], 
-                        columns = list_col, 
-                        index = [df.index[i]])
-                    ])
-        self.coeff_table = coeff_table
+            ls_dict.append(self._add_list_to_dict(popt,list_col))
+        self.coeff_table = pd.DataFrame(ls_dict)
+
+    def _add_list_to_dict(self, list_val, ls_col):
+        """
+        This method takes a list of values and a list of columns 
+        and makes a dictionary. It aligns the two lists based on
+        sequence.
+        """
+
+        # the two lists must have the same length
+        assert len(list_val) == len(ls_col)
+
+        i_dict = dict()
+        for i in range(0, len(list_val)):
+            i_dict[ls_col[i]] = list_val[i]
+
+        logger.debug(
+            f"Result of creating a dictionary for creating a df: {i_dict}"
+            )
+        
+        return i_dict
 
     def graph_data(self, x_data, func):
         """This method returns graphing-ready data sets"""
