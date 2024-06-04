@@ -34,9 +34,10 @@ def rainfall_curve_fit(path, formula):
     # Using the Ridf object, create a Pandas DataFrame of the RIDF table
     # Then clean and organize
     ridf_raw = pd.read_csv(path, index_col=0)
+    ridf_raw.ridf
     # convert the headers into integers
     ridf_raw.columns = ridf_raw.columns.map(int)
-    # convert minutest to hours, minutes makes the curve fit unstable
+    # convert minutes to hours, minutes makes the curve fit unstable
     ridf_raw.columns = ridf_raw.columns / 60
     logging.debug(f"ridf_raw: {ridf_raw}")
 
@@ -82,7 +83,8 @@ class Ridf():
     """
 
     def __init__(self, obj):
-        logging.debug(f"obj: {obj}")
+        logging.debug(f"Beginning Ridf initialization")
+        logging.debug(f"Received obj: {obj}")
         # check if progression is correct
         err_msg = "column headers should be minutes and increasing order"
         assert self._is_col_correct_progression(obj) == True, err_msg
