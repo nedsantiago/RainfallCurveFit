@@ -6,11 +6,10 @@ from curve_fit import *
 import pandas as pd
 
 
-logger = logging.getLogger(__name__)
-
 class TestRainfallCurveFit():
     """This class collects all the functions that test the whole curve fit program.
     It take the test input data, and checks if it matches to the expected output data."""
+    logger = logging.getLogger(__name__)
 
     def _test_data(self, input_dir, output_dir):
         """This method takes the directories of the input and expected output, and
@@ -22,12 +21,12 @@ class TestRainfallCurveFit():
         # calculate the result of rainfall curve fit
         altblock = rainfall_curve_fit(input_dir, hoerl_mod)
         dfin = altblock.df_output.round(ROUND_DECIMAL)
-        print(f"dfin:\n{dfin}")
+        logger.debug(f"dfin:\n{dfin}")
 
         # load test data
         dfout = pd.read_csv(output_dir, index_col=0).round(ROUND_DECIMAL)
         dfout.columns = dfout.columns.map(int)
-        print(f"dfout:\n{dfout}")
+        logger.debug(f"dfout:\n{dfout}")
 
         # checking if the results match the test data
         assert dfin.equals(dfout), f"Result of {input_dir} do not match {output_dir}"
@@ -54,6 +53,7 @@ class TestRidf():
     """
     This class collects the tests used for the Ridf class object.
     """
+    logger = logging.getLogger(__name__)
 
     def _test_input_vs_output(self, test_input, expected_output):
         """Checks for equivalence"""

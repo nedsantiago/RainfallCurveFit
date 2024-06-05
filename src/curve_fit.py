@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
 from csv import DictReader
+from inspect import signature
 
 # setup logger
 import logging
@@ -43,29 +44,25 @@ def rainfall_curve_fit(path, formula):
 
     # take adavantage of transposition, df.T for getting 150-year RP
     # Estimate the 150-year Return Period
-    cf_T = CurveFitter()
-    cf_T.curvefit(formula, ridf_raw.T)
+    cf_T = CurveFitter(formula, ridf_raw.T)
 
     # Replace the current dataframe with a new one with 150-year RP
-    ridf_adj = ridf_raw
-    ridf_adj = cf_T.estimate_data(150, formula, ridf_raw)
-    logger.debug(f"The value of ridf_adj:\n{ridf_adj}")
-    logger.debug(f"The column names of ridf_adj\n {ridf_adj.columns}")
+    rp_150 = cf_T.estimate_data(150, formula)
+    ridf_150 = pd.concat([ridf_raw, rp_150])
+    logger.debug(f"The value of ridf_150:\n{ridf_150}")
+    logger.debug(f"The column names of ridf_adj\n {ridf_150.columns}")
 
     # Get the curve fit constants for each return period
-    cf_adj = CurveFitter()
-    cf_adj.curvefit(formula, ridf_adj)
-    logger.debug(f"The value of cf_adj.coeff_table:\n{cf_adj.coeff_table}")
+    cf_150 = CurveFitter(formula, ridf_150)
+    logger.debug(f"The value of cf_adj.coeff_table:\n{cf_150.coeff_table}")
 
     # Now with the curve fit constants, get hourly rainfall intensities
     HOURLY_24 = [i for i in range(1, 24+1)]
     logger.debug(f"The value of HOURLY_24: {HOURLY_24}")
 
-    dfi = pd.DataFrame()
-    for i in HOURLY_24:
-        logger.debug(f"For hour {i} of type {type(i)}:")
-        dfi = cf_adj.estimate_data(i,formula,dfi)
-        logger.debug(dfi)
+    # estimate the hourly rainfall
+    dfi = cf_150.estimate_data(HOURLY_24, formula)
+    logger.debug(dfi)
 
     # Rearrange into rainfall event using AlternateBlock object
     df_new = AlterBlock(dfi)
@@ -134,38 +131,53 @@ class Ridf():
 # Curve Fitter Object
 class CurveFitter():
     """
-    This object takes a dataframe and outputs a curve-fit parameter 
-    table
+    This class estimates the parameters that fit a formula to a set of data.
+    It takes a formula and a pandas dataframe of the data to be considered.
     """
 
-    def curvefit(self, func, df):
+    def __init__(self, formula, df):
+        """
+        Calculates the curve-fit parameter table and saves its results as 
+        an attribute
+        """
+
+        self._dataframe = df
+        self._formula = formula
+        self.coeff_table = self._curvefit(formula, df)
+
+    def _curvefit(self, func, df):
         """
         Calculates the curve-fit parameter table and returns a Pandas 
         Dataframe
         """
 
-        self.func = func
-        # Placeholder floating point values for xdf
-        df_col = df.columns
-        self.df_col = df.columns
-        self.df_ind = df.index
-        self.df_collen = len(df.columns)
-        self.df_indlen = len(df.index)
-        list_col = list('abc') # EDIT THIS: needs to be useable by many formats
+        # get column names based on alphabet
+        func_arg_count = self._get_args_count(func)
+        # create a list of column names based on number of required arguments
+        list_col = [chr(ord('`') + num + 1) for num in range(0, func_arg_count)]
         # collect list of dictionaries
         ls_dict = list()
-        for i in range(0, self.df_indlen):
+        for i in range(0, len(df.index)):
             # Reads the dataframe for the i-th row
             df_ind = np.array(df.iloc[i,:])
             logger.debug(f"df.iloc[i,:]:\n{df.iloc[i,:]}")
             # Curve Fitting Algorithm
-            popt, pcov = curve_fit(func, df_col, df_ind)
-			# concatenates this iteration's dataframe to the 
-            # coefficient table dataframe
-            ls_dict.append(self._add_list_to_dict(popt,list_col))
-        self.coeff_table = pd.DataFrame(ls_dict)
+            popt, pcov = curve_fit(func, df.columns, df_ind)
+            # append this iteration to this list of dictionaries
+            ls_dict.append(self._create_dict_from_lists(popt,list_col))
+        coeff_table = pd.DataFrame(ls_dict)
 
-    def _add_list_to_dict(self, list_val, ls_col):
+        return coeff_table
+
+    def _get_args_count(self, formula):
+        # use signature function to get data about formula
+        sign = signature(formula)
+        # assuming number of arguments is the number of parameters
+
+        # return number of parameters
+        return len(sign.parameters) - 1
+
+    def _create_dict_from_lists(self, list_val, ls_col):
         """
         This method takes a list of values and a list of columns 
         and makes a dictionary. It aligns the two lists based on
@@ -194,7 +206,7 @@ class CurveFitter():
         # return x values as a numpy array
         return y_data
     
-    def estimate_data(self, x_value, func, df):# EDIT x_value to be a list
+    def estimate_data(self, x_value, func):# EDIT x_value to be a list
         """
         This method estimates the values for a new dataframe or
         dataframe edition
@@ -203,27 +215,32 @@ class CurveFitter():
         # using the x data, get all the y-values for each x-value
         y_data = pd.DataFrame(columns=[x_value])
         logger.debug(f"Values of self.coeff_table:\n{self.coeff_table}")
-        logger.debug(f"Values of self.df_ind:\n{self.df_ind}")
-        logger.debug(f"Values of self.df_col:\n{self.df_col}")
-        for i in range(0, len(self.df_ind)):
-            # take this iteration's constants
-            y_ind = self.df_ind[i]
-            popt = self.coeff_table.iloc[i,:]
-            logger.debug(f"Value of y_ind:\n{y_ind}")
-            logger.debug(f"Value of popt for iteration {i}:\n{popt}\nType of popt:\n{type(popt)}")
-            # calculate the estimated value
-            # concat this into a pandas dataframe 
-            y_data = pd.concat(
-                [y_data, pd.DataFrame(
-                        [func(x_value, *popt)], 
-                        columns = [x_value], 
-                        index = [y_ind]
-                        )])
-            logger.debug(f"y_data:\n{y_data}")
-        # return the complete dataframe
-        df2 = pd.concat([y_data.T,df])
-        df2 = df2.sort_index()
-        return df2
+        logger.debug(f"Index of coefficient table:\n{self.coeff_table.index}")
+        logger.debug(f"Columns of coefficient table:\n{self.coeff_table.columns}")
+
+        # initialize a list of dictionaries
+        ls_dict = list()
+        # if x-values is not a list of values
+        if not(hasattr(x_value, "__iter__")):
+            # make it a list
+            x_value = [x_value]
+        # loop through the provided x-values to be estimated (row)
+        for i in x_value:
+            # parallel loop through the coefficient table row (popt) and dataframe index names (column)
+            j_dict = dict()
+            for j in range(0, len(self._dataframe.index)):
+                # get the column name
+                col_name = self._dataframe.index[j]
+                # get formula parameters
+                popt = self.coeff_table.iloc[j,:]
+                # evaluate formula and add to dictionary
+                j_dict[col_name] = func(i, *popt)
+            ls_dict.append(j_dict)
+
+        logger.debug(f"Result of NEW list of dictionaries style:\n{pd.DataFrame(ls_dict)}\n ---VS---\nOLD\n{y_data}")
+        df = pd.DataFrame(ls_dict)
+        df.set_index = pd.Index(x_value)
+        return df
 
 # AlternateBlock object
 class AlterBlock():
