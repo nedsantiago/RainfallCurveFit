@@ -206,16 +206,15 @@ class CurveFitter():
         # return x values as a numpy array
         return y_data
     
-    def estimate_data(self, x_value, func):# EDIT x_value to be a list
+    def estimate_data(self, x_value, func):
         """
         This method estimates the values for a new dataframe or
         dataframe edition
         """
 
         # using the x data, get all the y-values for each x-value
-        y_data = pd.DataFrame(columns=[x_value])
-        logger.debug(f"Values of self.coeff_table:\n{self.coeff_table}")
-        logger.debug(f"Index of coefficient table:\n{self.coeff_table.index}")
+        logger.debug(f"Values of self.coeff_table:\n{self.coeff_table.values}")
+        logger.debug(f"Index of coefficient table:\n{self.coeff_table.index.values}")
         logger.debug(f"Columns of coefficient table:\n{self.coeff_table.columns}")
 
         # initialize a list of dictionaries
@@ -231,15 +230,15 @@ class CurveFitter():
             for j in range(0, len(self._dataframe.index)):
                 # get the column name
                 col_name = self._dataframe.index[j]
+                logger.debug(f"{col_name} will be column name for queried {i}")
                 # get formula parameters
                 popt = self.coeff_table.iloc[j,:]
                 # evaluate formula and add to dictionary
                 j_dict[col_name] = func(i, *popt)
             ls_dict.append(j_dict)
 
-        logger.debug(f"Result of NEW list of dictionaries style:\n{pd.DataFrame(ls_dict)}\n ---VS---\nOLD\n{y_data}")
         df = pd.DataFrame(ls_dict)
-        df.set_index = pd.Index(x_value)
+        df.set_index(pd.Index(x_value), inplace=True)
         return df
 
 # AlternateBlock object
