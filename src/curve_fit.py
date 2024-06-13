@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
 from inspect import signature
+from typing import Callable
 
 # setup logger
 import logging
@@ -23,7 +24,7 @@ def vap_pres(x,a,b,c):
 def log_fit(x,a,b):
     return a+b*np.log(x)
 
-def rainfall_curve_fit(path, formula, output_timeseries):
+def rainfall_curve_fit(path:str, formula:Callable, output_timeseries:list) -> pd.DataFrame:
     """
     This function takes a path of a CSV-formatted Rainfall Intensity-Duration-Frequency
     table and returns a time-series dataframe return period. This function follows the 
@@ -142,7 +143,7 @@ class CurveFitter():
         self._formula = formula
         self.coeff_table = self._curvefit(formula, df)
 
-    def _curvefit(self, func, df):
+    def _curvefit(self, func:Callable, df:pd.DataFrame) -> pd.DataFrame:
         """
         Calculates the curve-fit parameter table and returns a Pandas 
         Dataframe
@@ -166,7 +167,7 @@ class CurveFitter():
 
         return coeff_table
 
-    def _get_args_count(self, formula):
+    def _get_args_count(self, formula:Callable) -> int:
         """
         This method estimates the number of arguments a formula requires by
         using the signature function. It takes the number of arguments minus
@@ -176,11 +177,11 @@ class CurveFitter():
         sign = signature(formula)
         return len(sign.parameters) - 1
 
-    def _create_dict_from_lists(self, list_val, ls_col):
+    def _create_dict_from_lists(self, list_val:list, ls_col:list) -> dict:
         """
         This method takes a list of values and a list of columns then pairs each
-        element in value (as value) to a column (as key) dictionary. It aligns 
-        the two lists based on sequence.
+        element in value (as value) to a column (as key) and returns a dictionary. 
+        It aligns the two lists based on sequence.
         """
 
         # the two lists must have the same length
@@ -205,11 +206,11 @@ class CurveFitter():
         # return x values as a numpy array
         return y_data
     
-    def estimate_data(self, x_value):
+    def estimate_data(self, x_value:list) -> pd.DataFrame:
         """
         This method takes an independent variable and uses that to estimate
-        depdendent variables using the formula and parameter table
-        curve fit/regression model given.
+        dependent variables using the formula and parameter table curve 
+        fit/regression model given.
         """
 
         logger.debug(f"Values of self.coeff_table:\n{self.coeff_table.values}")
@@ -251,7 +252,7 @@ class AlterBlock():
     the smallest values are near the start and end of the dataset
     """
 
-    def __init__(self, df):
+    def __init__(self, df:pd.DataFrame):
         # Assuming the values are organized from largest to smallest
 
         # make a new dataframe where i hour is the result of i - (i+1)
