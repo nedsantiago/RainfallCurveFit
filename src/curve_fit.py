@@ -45,7 +45,7 @@ def rainfall_curve_fit(path, formula, output_timeseries):
     cf_T = CurveFitter(formula, input_ridf.T)
 
     # Estimate missing return period
-    timeseries_150yr = cf_T.estimate_data(150, formula)
+    timeseries_150yr = cf_T.estimate_data(150)
     # Concatenate estimated data to get an RIDF table with desired Return Periods
     ridf_complete_rp = pd.concat([input_ridf, timeseries_150yr])
     logger.debug(f"The value of ridf_150:\n{ridf_complete_rp}")
@@ -56,7 +56,7 @@ def rainfall_curve_fit(path, formula, output_timeseries):
     logger.debug(f"The value of cf_adj.coeff_table:\n{cf_150.coeff_table}")
 
     # estimate stochastic rainfall
-    dfi = cf_150.estimate_data(output_timeseries, formula)
+    dfi = cf_150.estimate_data(output_timeseries)
     logger.debug(dfi)
 
     # Rearrange into rainfall event using AlternateBlock object
@@ -196,16 +196,16 @@ class CurveFitter():
         
         return i_dict
 
-    def graph_data(self, x_data, func):
+    def graph_data(self, x_data):
         """This method returns graphing-ready data sets"""
         
         # using the x data, get all the y-values for each x-value
         popt = self.coeff_table.iloc[0,:]
-        y_data = func(x_data, *popt)
+        y_data = self._formula(x_data, *popt)
         # return x values as a numpy array
         return y_data
     
-    def estimate_data(self, x_value, func):
+    def estimate_data(self, x_value):
         """
         This method estimates the values for a new dataframe or
         dataframe edition
@@ -233,7 +233,7 @@ class CurveFitter():
                 # get formula parameters
                 popt = self.coeff_table.iloc[j,:]
                 # evaluate formula and add to dictionary
-                j_dict[col_name] = func(i, *popt)
+                j_dict[col_name] = self._formula(i, *popt)
             ls_dict.append(j_dict)
 
         df = pd.DataFrame(ls_dict)
