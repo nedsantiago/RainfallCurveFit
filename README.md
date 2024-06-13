@@ -68,3 +68,7 @@ This script aims to reduce the time spent converting Rainfall-Intensity Duration
 - [ ] CurveFitter detects how many parameter a function requires and makes a list of columns accordingly
 - [ ] Make a documentation, possible logo of droplet hole in a graph
 - [ ] Maybe add this to a personal website as part of a portfolio
+- [ ] Curvefitter should detect whether the requested return period or duration already exists in the dataframe
+- [ ] CurveFitter should be able to take multiple return period or duration requests
+- [ ] Adding a function that properly formats dataframes to correct progression of return period and durations.
+- [ ] rainfall_curve_fit should be more flexible with what time-series data it can estimate (1hr-, 30min-, 1min-interval)

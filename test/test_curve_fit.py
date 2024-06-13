@@ -18,8 +18,12 @@ class TestRainfallCurveFit():
         # round results to the fourth decimal place
         ROUND_DECIMAL = 4
 
+        # Now with the curve fit constants, get hourly rainfall intensities
+        HOURLY_24 = [i for i in range(1, 24+1)]
+        logger.debug(f"The value of HOURLY_24: {HOURLY_24}")
+
         # calculate the result of rainfall curve fit
-        altblock = rainfall_curve_fit(input_dir, hoerl_mod)
+        altblock = rainfall_curve_fit(input_dir, hoerl_mod, HOURLY_24)
         dfin = altblock.df_output.round(ROUND_DECIMAL)
         logger.debug(f"dfin:\n{dfin}")
 

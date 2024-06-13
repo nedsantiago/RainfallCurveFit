@@ -22,8 +22,12 @@ def main():
     settings.add_path("ridf", INPUT_PATH)
     settings.add_path("csv_result", OUTPUT_PATH)
 
+    # Now with the curve fit constants, get hourly rainfall intensities
+    HOURLY_24 = [i for i in range(1, 24+1)]
+    logger.debug(f"The value of HOURLY_24: {HOURLY_24}")
+
     # Conduct rainfall curve fit
-    df_new = rainfall_curve_fit(settings.paths["ridf"], formula)
+    df_new = rainfall_curve_fit(settings.paths["ridf"], formula, HOURLY_24)
 
     # Record the final data into csv format
     record = DataRecorder()

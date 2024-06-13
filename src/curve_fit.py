@@ -24,44 +24,40 @@ def vap_pres(x,a,b,c):
 def log_fit(x,a,b):
     return a+b*np.log(x)
 
-def rainfall_curve_fit(path, formula):
+def rainfall_curve_fit(path, formula, output_timeseries):
     """
-    This function takes a path of a Rainfall-Intensity-Duration
-    Frequency table and returns a table of time-series data for each 
-    return period. This follows the Alternating Block Method for 
-    Stochastic Rainfall estimation
+    This function takes a path of a CSV-formatted Rainfall Intensity-Duration-Frequency
+    table and returns a time-series dataframe return period. This function follows the 
+    Alternating Block Method for Stochastic Rainfall estimation.
     """
 
-    # Using the Ridf object, create a Pandas DataFrame of the RIDF table
-    # Then clean and organize
-    ridf_raw = pd.read_csv(path, index_col=0)
-    ridf_raw.ridf
-    # convert the headers into integers
-    ridf_raw.columns = ridf_raw.columns.map(int)
-    # convert minutes to hours, minutes makes the curve fit unstable
-    ridf_raw.columns = ridf_raw.columns / 60
-    logging.debug(f"ridf_raw: {ridf_raw}")
+    # Read RIDF csv file
+    input_ridf = pd.read_csv(path, index_col=0)
+    # Initialize ridf pandas extension
+    input_ridf.ridf
+    # Convert the headers into integers
+    input_ridf.columns = input_ridf.columns.map(int)
+    # Convert minutes to hours, minutes makes the curve fit unstable
+    input_ridf.columns = input_ridf.columns / 60
+    logging.debug(f"ridf_raw: {input_ridf}")
 
-    # take adavantage of transposition, df.T for getting 150-year RP
-    # Estimate the 150-year Return Period
-    cf_T = CurveFitter(formula, ridf_raw.T)
+    # Transpose and curve fit the dataframe for a curve fitting model
+    # that can complete missing return periods
+    cf_T = CurveFitter(formula, input_ridf.T)
 
-    # Replace the current dataframe with a new one with 150-year RP
-    rp_150 = cf_T.estimate_data(150, formula)
-    ridf_150 = pd.concat([ridf_raw, rp_150])
-    logger.debug(f"The value of ridf_150:\n{ridf_150}")
-    logger.debug(f"The column names of ridf_adj\n {ridf_150.columns}")
+    # Estimate missing return period
+    timeseries_150yr = cf_T.estimate_data(150, formula)
+    # Concatenate estimated data to get an RIDF table with desired Return Periods
+    ridf_complete_rp = pd.concat([input_ridf, timeseries_150yr])
+    logger.debug(f"The value of ridf_150:\n{ridf_complete_rp}")
+    logger.debug(f"The column names of ridf_adj\n {ridf_complete_rp.columns}")
 
-    # Get the curve fit constants for each return period
-    cf_150 = CurveFitter(formula, ridf_150)
+    # Estimate Curve Fit constants for each return period
+    cf_150 = CurveFitter(formula, ridf_complete_rp)
     logger.debug(f"The value of cf_adj.coeff_table:\n{cf_150.coeff_table}")
 
-    # Now with the curve fit constants, get hourly rainfall intensities
-    HOURLY_24 = [i for i in range(1, 24+1)]
-    logger.debug(f"The value of HOURLY_24: {HOURLY_24}")
-
     # estimate the hourly rainfall
-    dfi = cf_150.estimate_data(HOURLY_24, formula)
+    dfi = cf_150.estimate_data(output_timeseries, formula)
     logger.debug(dfi)
 
     # Rearrange into rainfall event using AlternateBlock object
