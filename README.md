@@ -72,5 +72,5 @@ This script aims to reduce the time spent converting Rainfall-Intensity Duration
 - [ ] CurveFitter should be able to take multiple return period or duration requests
 - [ ] Adding a function that properly formats dataframes to correct progression of return period and durations.
 - [ ] rainfall_curve_fit should be more flexible with what time-series data it can estimate (1hr-, 30min-, 1min-interval)
-- [ ] remove xdata and ydata functionality form CurveFitter since the dataframe attributes handle this already.
+- [x] remove xdata and ydata functionality form Ridf since the dataframe attributes handle this already.
 - [x] remove func argument in graph_data and estimate_data because it should always be using the private _formula attribute

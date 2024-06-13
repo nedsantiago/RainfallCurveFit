@@ -111,20 +111,6 @@ class Ridf():
         obj.columns = obj.columns.map(int)
         logging.debug(f"obj.columns after conversion:\n{obj.columns}")
 
-    def xdata(self):
-        """
-        This method creates the x-axis data, which is mainly used
-        for graphs
-        """
-        return self.index
-    
-    def ydata(self):
-        """
-        This method creates the y-axis data, which is mainly used for 
-        graphs
-        """
-        return self.columns
-
 # Curve Fitter Object
 class CurveFitter():
     """
