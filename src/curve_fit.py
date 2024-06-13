@@ -168,7 +168,7 @@ class CurveFitter():
 
     def _get_args_count(self, formula):
         """
-        This method estiamtes the number of arguments a formula requires by
+        This method estimates the number of arguments a formula requires by
         using the signature function. It takes the number of arguments minus
         one, because 'x' parameter is an independent variable and not a parameter.
         """
@@ -178,9 +178,9 @@ class CurveFitter():
 
     def _create_dict_from_lists(self, list_val, ls_col):
         """
-        This method takes a list of values and a list of columns 
-        and makes a dictionary. It aligns the two lists based on
-        sequence.
+        This method takes a list of values and a list of columns then pairs each
+        element in value (as value) to a column (as key) dictionary. It aligns 
+        the two lists based on sequence.
         """
 
         # the two lists must have the same length
@@ -207,18 +207,18 @@ class CurveFitter():
     
     def estimate_data(self, x_value):
         """
-        This method estimates the values for a new dataframe or
-        dataframe edition
+        This method takes an independent variable and uses that to estimate
+        depdendent variables using the formula and parameter table
+        curve fit/regression model given.
         """
 
-        # using the x data, get all the y-values for each x-value
         logger.debug(f"Values of self.coeff_table:\n{self.coeff_table.values}")
         logger.debug(f"Index of coefficient table:\n{self.coeff_table.index.values}")
         logger.debug(f"Columns of coefficient table:\n{self.coeff_table.columns}")
 
         # initialize a list of dictionaries
         ls_dict = list()
-        # if x-values is not a list of values
+        # if x-values is not iterable (likely not a list)
         if not(hasattr(x_value, "__iter__")):
             # make it a list
             x_value = [x_value]
@@ -252,10 +252,10 @@ class AlterBlock():
     """
 
     def __init__(self, df):
-        ## Assuming the values are organized from largest to smallest
-        
-        ## make a new dataframe where i hour is the result of i - (i+1)
-        ## if first row, retain
+        # Assuming the values are organized from largest to smallest
+
+        # make a new dataframe where i hour is the result of i - (i+1)
+        # if first row, retain
         logger.debug(f"df before the subtraction:\n{df}")
         for i in range(len(df.index)-1, 0, -1):
             df.iloc[i,:] = df.iloc[i-1,:] - df.iloc[i,:]
