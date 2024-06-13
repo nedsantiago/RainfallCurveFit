@@ -2,7 +2,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
-from csv import DictReader
 from inspect import signature
 
 # setup logger
@@ -168,11 +167,13 @@ class CurveFitter():
         return coeff_table
 
     def _get_args_count(self, formula):
-        # use signature function to get data about formula
-        sign = signature(formula)
-        # assuming number of arguments is the number of parameters
+        """
+        This method estiamtes the number of arguments a formula requires by
+        using the signature function. It takes the number of arguments minus
+        one, because 'x' parameter is an independent variable and not a parameter.
+        """
 
-        # return number of parameters
+        sign = signature(formula)
         return len(sign.parameters) - 1
 
     def _create_dict_from_lists(self, list_val, ls_col):
