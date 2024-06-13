@@ -39,7 +39,7 @@ def rainfall_curve_fit(path:str, formula:Callable, output_timeseries:list) -> pd
     input_ridf.columns = input_ridf.columns.map(int)
     # Convert minutes to hours, minutes makes the curve fit unstable
     input_ridf.columns = input_ridf.columns / 60
-    logging.debug(f"ridf_raw: {input_ridf}")
+    logging.debug(f"rainfall_curve_fit received this input:\n{input_ridf}")
 
     # Transpose and curve fit the dataframe for a curve fitting model
     # that can complete missing return periods
@@ -49,12 +49,12 @@ def rainfall_curve_fit(path:str, formula:Callable, output_timeseries:list) -> pd
     timeseries_150yr = cf_T.estimate_data(150)
     # Concatenate estimated data to get an RIDF table with desired Return Periods
     ridf_complete_rp = pd.concat([input_ridf, timeseries_150yr])
-    logger.debug(f"The value of ridf_150:\n{ridf_complete_rp}")
-    logger.debug(f"The column names of ridf_adj\n {ridf_complete_rp.columns}")
+    logger.debug(f"The estimated 150-year RP values per duration are:\n{ridf_complete_rp}")
+    logger.debug(f"The complete list of return period for analysis:\n {ridf_complete_rp.columns}")
 
     # Estimate Curve Fit constants for each return period
     cf_150 = CurveFitter(formula, ridf_complete_rp)
-    logger.debug(f"The value of cf_adj.coeff_table:\n{cf_150.coeff_table}")
+    logger.debug(f"The resulting coefficient table regression analysis:\n{cf_150.coeff_table}")
 
     # estimate stochastic rainfall
     dfi = cf_150.estimate_data(output_timeseries)
@@ -109,7 +109,7 @@ class Ridf():
 
         # convert all headers to integer
         obj.columns = obj.columns.map(int)
-        logging.debug(f"obj.columns after conversion:\n{obj.columns}")
+        logging.debug(f"obj.columns after conversion to integers:\n{obj.columns}")
 
 # Curve Fitter Object
 class CurveFitter():
@@ -144,9 +144,12 @@ class CurveFitter():
         for i in range(0, len(df.index)):
             # Reads the dataframe for the i-th row
             df_ind = np.array(df.iloc[i,:])
-            logger.debug(f"df.iloc[i,:]:\n{df.iloc[i,:]}")
+            logger.debug(f"curve fitting df.iloc[{i},:]:\n{df.iloc[i,:]}")
             # Curve Fitting Algorithm
-            popt, pcov = curve_fit(func, df.columns, df_ind)
+            try:
+                popt, pcov = curve_fit(func, df.columns, df_ind)
+            except RuntimeError as e:
+                raise f"SciPy curve_fit could not estimate the parameters({popt}), error:\n {e}"
             # append this iteration to this list of dictionaries
             ls_dict.append(self._create_dict_from_lists(popt,list_col))
         coeff_table = pd.DataFrame(ls_dict)
@@ -199,9 +202,9 @@ class CurveFitter():
         fit/regression model given.
         """
 
-        logger.debug(f"Values of self.coeff_table:\n{self.coeff_table.values}")
-        logger.debug(f"Index of coefficient table:\n{self.coeff_table.index.values}")
-        logger.debug(f"Columns of coefficient table:\n{self.coeff_table.columns}")
+        logger.debug(f"Index, Columns, and Values of coefficient table:\n{self.coeff_table.index.values}")
+        logger.debug(f"{self.coeff_table.columns}")
+        logger.debug(f"{self.coeff_table.values}")
 
         # initialize a list of dictionaries
         ls_dict = list()
@@ -216,7 +219,6 @@ class CurveFitter():
             for j in range(0, len(self._dataframe.index)):
                 # get the column name
                 col_name = self._dataframe.index[j]
-                logger.debug(f"{col_name} will be column name for queried {i}")
                 # get formula parameters
                 popt = self.coeff_table.iloc[j,:]
                 # evaluate formula and add to dictionary
@@ -243,10 +245,10 @@ class AlterBlock():
 
         # make a new dataframe where i hour is the result of i - (i+1)
         # if first row, retain
-        logger.debug(f"df before the subtraction:\n{df}")
+        logger.debug(f"df before subtraction by next value:\n{df}")
         for i in range(len(df.index)-1, 0, -1):
             df.iloc[i,:] = df.iloc[i-1,:] - df.iloc[i,:]
-        logger.debug(f"df AFTER the subtraction:\n{df}")
+        logger.debug(f"df after the subtraction by next value:\n{df}")
 
         ## give two new columns, one that increments from 1 to infinity, and the other
         ## increments between 1 and 0. Each pair must be unique
@@ -257,17 +259,17 @@ class AlterBlock():
 
         ## whenever column 2 is 1 add the numbers into another dataframe
         ## where smallest value is at the bottom
-        dfbot = df.loc[df['IsOdd'] == 1]
-        logger.debug(f"The value of IsOdd DF:\n{dfbot}")
+        df_secondhalf = df.loc[df['IsOdd'] == 1]
+        logger.debug(f"The value of IsOdd DF:\n{df_secondhalf}")
         
         ## whenever column 2 is zero add the number to its own dataframe
         ## where smallest value is at the top
-        dftop = df.loc[df['IsOdd'] == 0]
-        logger.debug(f"The value of NOT IsOdd DF:\n{dftop.sort_values(by = [dftop.columns[0]],ascending = True)}")
-        logger.debug(f"The value of dftop:\n{dftop}")
+        df_firsthalf = df.loc[df['IsOdd'] == 0]
+        logger.debug(f"The value of NOT IsOdd DF:\n{df_firsthalf.sort_values(by = [df_firsthalf.columns[0]],ascending = True)}")
+        logger.debug(f"The value of dftop:\n{df_firsthalf}")
         
         ## concat the two dataframes
-        self.df_output =  pd.concat([dftop.sort_values(by = [dftop.columns[0]], ascending = True), dfbot])
+        self.df_output =  pd.concat([df_firsthalf.sort_values(by = [df_firsthalf.columns[0]], ascending = True), df_secondhalf])
         self.df_output = self.df_output.drop(['IsOdd', 'ind'], axis=1)
         
 # Graphing Object
