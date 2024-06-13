@@ -23,7 +23,7 @@ This script aims to reduce the time spent converting Rainfall-Intensity Duration
 ## Required Inputs
 * The path to the rainfall data file. The csv file should be a rainfall intensity file with this format:
 
-|     | 10    | 20    | 30    | 1     | 2    | 3    | 6    | 12   | 24   |
+|     | 10    | 20    | 30    | 60    | 120  | 180  | 360  | 720  | 1440 |
 |-----|-------|-------|-------|-------|------|------|------|------|------|
 | 2   | 123.9 | 96.1  | 81.3  | 55.8  | 37.5 | 28.6 | 18.0 | 11.0 | 6.3  |
 | 5   | 171.9 | 132.5 | 111.8 | 76.0  | 51.8 | 40.2 | 25.9 | 16.1 | 9.5  |
