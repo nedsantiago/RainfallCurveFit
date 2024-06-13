@@ -1,3 +1,7 @@
+<div align="center" style="height:250px;margin: auto;">
+  <img src="./docs/icons/logo_altblock.svg"><br>
+</div>
+
 # Alternating Block Method for Stochastic Rainfall
 ![GitHub Actions Build Status](https://github.com/nedsantiago/altblock_stochastic/actions/workflows/python-app.yml/badge.svg)
 

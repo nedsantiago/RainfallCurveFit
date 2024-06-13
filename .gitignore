@@ -1,6 +1,7 @@
 # MY GIT IGNORES
 venv/
 results.csv
+*_inkscape.svg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
