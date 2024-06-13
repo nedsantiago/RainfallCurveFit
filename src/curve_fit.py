@@ -56,23 +56,23 @@ def rainfall_curve_fit(path, formula, output_timeseries):
     cf_150 = CurveFitter(formula, ridf_complete_rp)
     logger.debug(f"The value of cf_adj.coeff_table:\n{cf_150.coeff_table}")
 
-    # estimate the hourly rainfall
+    # estimate stochastic rainfall
     dfi = cf_150.estimate_data(output_timeseries, formula)
     logger.debug(dfi)
 
     # Rearrange into rainfall event using AlternateBlock object
-    df_new = AlterBlock(dfi)
-    logger.debug(f"The result of the AlternateBlock:\n{df_new.df_output}")
+    df_altblock = AlterBlock(dfi)
+    logger.debug(f"The result of the AlternateBlock:\n{df_altblock.df_output}")
 
-    return df_new
+    return df_altblock
 
 # RIDF Object
 @pd.api.extensions.register_dataframe_accessor("ridf")
 class Ridf():
     """
-    This object contains the rainfall-intensity-duration frequency
-    table in its raw, approximated, and resulting values. It assumes
-    minutes duration.
+    This class extends the pandas dataframe class with ridf-related 
+    functionality. It converts the headers into integers, and checks
+    if the headers are sorted correctly.
     """
 
     def __init__(self, obj):
@@ -80,27 +80,27 @@ class Ridf():
         logging.debug(f"Received obj: {obj}")
         # check if progression is correct
         err_msg = "column headers should be minutes and increasing order"
-        assert self._is_col_correct_progression(obj) == True, err_msg
+        assert self._is_col_correct_order(obj) == True, err_msg
 
-    def _is_col_correct_progression(self, obj) -> bool:
+    def _is_col_correct_order(self, obj) -> bool:
         """
-        This method checks if columns are increasing from left
-        to right.
+        This method checks if columns are sorted correctly, increasing
+        order from left to right.
         """
         
-        # set flag for has correct progression
-        has_correct_progression = True
-        # loop through columns starting from second item
+        # initialize the order flag as true
+        has_correct_ordered_cols = True
         logger.debug(f"obj: {obj}")
         logger.debug(f"obj.columns: {obj.columns}")
-        # start at second item
+
+        # loop through columns starting from the second column
         for col_num in range(1, len(obj.columns)):
             # if number is less than previous (likely hours)
             if float(obj.columns[col_num]) < float(obj.columns[col_num - 1]):
                 # set flag to false
-                has_correct_progression = False
+                has_correct_ordered_cols = False
         # return flag
-        return has_correct_progression
+        return has_correct_ordered_cols
     
     def _convert_headers_to_integer(self, obj):
         """
@@ -117,6 +117,7 @@ class Ridf():
         for graphs
         """
         return self.index
+    
     def ydata(self):
         """
         This method creates the y-axis data, which is mainly used for 
@@ -129,6 +130,7 @@ class CurveFitter():
     """
     This class estimates the parameters that fit a formula to a set of data.
     It takes a formula and a pandas dataframe of the data to be considered.
+    Produce data from the curve fit results using the estimate_data method.
     """
 
     def __init__(self, formula, df):
@@ -256,7 +258,6 @@ class AlterBlock():
         logger.debug(f"df before the subtraction:\n{df}")
         for i in range(len(df.index)-1, 0, -1):
             df.iloc[i,:] = df.iloc[i-1,:] - df.iloc[i,:]
-            ## if not first row, subtract value to previous value insert
         logger.debug(f"df AFTER the subtraction:\n{df}")
 
         ## give two new columns, one that increments from 1 to infinity, and the other
