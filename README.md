@@ -55,6 +55,9 @@ Select where to save the result
 - [x] Pytest integration
 - [x] Singleton data handler, separate data handler and path taker
 - [x] Provide a GUI to the DataRetriever object
+- [ ] Make a small website to act as an improved GUI implementation
+- [ ] Create a test for each class
+- [ ] Organize classes into clearly defined python files
 - [x] Logging file that shows the process of the calculation, important for debugging the software
 - [x] Use class handlers.RotatingFileHandler in log file to also force log file size limit
 - [ ] Change Ridf class
