@@ -1,4 +1,4 @@
-<div align="center" style="height:250px;margin: auto;">
+<div align="center" style="margin:auto;">
   <img src="./docs/icons/logo_altblock.svg"><br>
 </div>
 
