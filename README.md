@@ -4,7 +4,7 @@
 
 # Alternating Block Method for Stochastic Rainfall
 ![GitHub Actions Build Status](https://github.com/nedsantiago/altblock_stochastic/actions/workflows/python-app.yml/badge.svg)
-
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Purpose
 This script aims to reduce the time spent converting Rainfall-Intensity Duration Frequency Curves (RIDF) into usable rainfall data for Hydrologic and Hydraulic Simulations.
